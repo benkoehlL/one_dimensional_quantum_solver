@@ -60,4 +60,3 @@ Psi = [complex(i.split(',')[1]) for i in data.split('\n')[:-1]]
 state = {'x' : x, 'Psi': Psi}
 
 s = system(state, potential)
-
