@@ -1,0 +1,7 @@
+name: quantum_integrator
+channels:
+  - numpy=1.23.5=py310hd5efca6_0
+  - numpy-base=1.23.5=py310h8e6c178_0
+  - matplotlib=3.7.0=py310h06a4308_0
+  - matplotlib-base=3.7.0=py310h1128e8f_0
+  - matplotlib-inline=0.1.6=py310h06a4308_0

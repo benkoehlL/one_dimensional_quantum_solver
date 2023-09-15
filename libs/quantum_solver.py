@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -42,77 +41,6 @@ class System():
         self.norm = self.get_norm(self.state)
         self.state['Psi'] = [i/self.norm for i in self.state['Psi']]
 
-    def check_x(self):
-        """ 
-            check whether potential and state x values are the same
-            user needs to supply a one to one correspondence 
-            between x of potential and state
-            
-        Raises:
-            ValueError: raises value error when state and potential have unequal length
-            ValueError: raises value error when discretisised positions of state and potential
-                        do not match
-        """
-        ## future work: sort potential and state in ascending order of x and
-        #  do interpolation of potential according to x values of initial state
-        if(len(self.potential['x']) != len(self.state['x'])):
-            raise ValueError(f"Potential and state have different length ({len(self.potential['x'])} and {len(self.state['x'])})")
-        check = False
-        for x in self.state['x']:
-            if(x not in self.potential['x']):
-                check = True
-                print(x)
-                break
-        if(check):
-            raise ValueError("Potential and state have non-matching x range")
-
-    def plot_potential(self):
-        """
-            Plots the (time-independent) potential of the system
-        """
-        plt.plot(self.potential['x'],self.potential['V'])
-        plt.ylabel("V(x)")
-        plt.xlabel("x")
-        plt.show() 
-
-    def plot_x_prob(self):
-        """
-           Plots the probability density of the system 
-        """
-        self.get_norm()
-        plt.plot(self.state['x'],[np.sqrt(i.real**2 + i.imag**2)/self.norm for i in self.state['Psi']])
-        plt.ylabel("Prob(x)")
-        plt.xlabel("x")
-        plt.show() 
-
-    def plot_final_state(self, T, h, method='Visscher'):
-        """
-            Plots the final state after it is evolving
-            for a time T in steps of h.
-
-        Args:
-            T (float): total time the system is evolving
-            h (float): stepsize for the propagation 
-            method (str, optional): integration method to be used.
-                                    Defaults to 'Visscher'.
-                                    options are ['Visscher,"RK4]
-        """
-        state = self.get_final_state(T,h,method)
-        plt.plot(state['x'],[np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']])
-        plt.ylabel("Psi(T)")
-        plt.xlabel("x")
-
-        plt.show() 
-
-    def get_norm(state):
-        """
-            Gets the norm of the initial state and saves it in a class variable    
-        """
-        sum = 0
-        for p in state['Psi']:
-            sum += np.sqrt((p.real**2+p.imag**2)) *(state['x'][1]-state['x'][0])
-        return sum
-
     def get_Laplace(self, state):
         """
            Returns the Laplacian of a given quantum state
@@ -124,7 +52,7 @@ class System():
 
         Returns:
             dict: a dictionary with an array of values and arguments
-                  for the keys 'l' and 'x', respectivelly 
+                  for the keys 'l' and 'x', respectively 
         """
         laplace = {'x' : state['x'], 'l' : np.zeros(len(state['x']),dtype = complex)}
         laplace['l'][1:-1] = [
@@ -151,15 +79,6 @@ class System():
 
         Args:
             state (dict):   a dictionary with keys 'x' and 'Psi' for 
-                            storing arrays of the wave function Psi's values
-                            at different positions x
-        """
-        """
-            Returns the Schrödinger Hamiltonian for a given quantum state 
-            and the system's potential
-
-        Args:
-            state (dict):   a dictionary with keys 'x' and 'Psi' for 
                             storing arrays of the wave function Psi's 
                             complex values at different positions x
 
@@ -168,8 +87,7 @@ class System():
                         state
         """
         L = self.get_Laplace(state)
-        #H = [-1j*(self.potential['V'][i]*state['Psi'][i]) for i in range(len(L['x']))]
-        H = [-0.5*(L['l'][i]+self.potential['V'][i]*state['Psi'][i]) for i in range(len(L['x']))]
+        H = [-0.5*L['l'][i]+self.potential['V'][i]*state['Psi'][i] for i in range(len(L['x']))]
         return H
 
     def evolve_system_RK4(self, T, h):
@@ -189,7 +107,7 @@ class System():
 
         state = self.state
         for t in range(int(T/h)):
-            print(str(100*t/(int(T/h)))+'%'+'\r',end='')
+            print(" Progress: " + str("{:.2f}".format(100*t/(int(T/h))))+'%'+'\r',end='')
             state = self.rk4_step(state, h)
         return state
 
@@ -214,7 +132,7 @@ class System():
 
         state = self.state
         for t in range(int(T/h)):
-            print(str(100*t/(int(T/h)))+'%'+'\r',end='')
+            print(" Progress: " + str("{:.2f}".format(100*t/(int(T/h))))+'%'+'\r',end='')
             state = self.Visscher_step(state, h)
         return state
 
@@ -268,8 +186,8 @@ class System():
         """
         R = {'x' : state['x'], 'Psi' : [i.real for i in state['Psi']]}
         I = {'x' : state['x'], 'Psi' : [i.imag for i in state['Psi']]}
-        I['Psi'] = [I['Psi'][i] + 1j*h*s for i,s in enumerate(self.schroedinger_H(R))]
-        R['Psi'] = [R['Psi'][i] - 1j*h*s for i,s in enumerate(self.schroedinger_H(I))]
+        I['Psi'] = [I['Psi'][i] - h*s for i,s in enumerate(self.schroedinger_H(R))]
+        R['Psi'] = [R['Psi'][i] + h*s for i,s in enumerate(self.schroedinger_H(I))]
         return ({'x' : state['x'], 'Psi' : [R['Psi'][i] + 1j*I['Psi'][i] for i in range(len(state['Psi']))]})
     
     def get_final_state(self, T, h, method="Visscher"):
@@ -320,10 +238,80 @@ class System():
         """
         state = self.get_final_state(T, h, method)
         # normalise the final state (necessary due to numerical errors)
-        norm = self.get_norm(state)
-        state['Psi'] = [i/norm for i in state['Psi']]
+        #norm = self.get_norm(state)
+        #state['Psi'] = [i/norm for i in state['Psi']]
 
         # open the file in the write mode
         f = open(file_name, 'w')
         for i in range(len(state['x'])):
             f.write(f"{state['x'][i]},{state['Psi'][i]}\n")
+
+    def check_x(self):
+        """ 
+            check whether potential and state x values are the same
+            user needs to supply a one to one correspondence 
+            between x of potential and state
+            
+        Raises:
+            ValueError: raises value error when state and potential have unequal length
+            ValueError: raises value error when discretisised positions of state and potential
+                        do not match
+        """
+        ## future work: sort potential and state in ascending order of x and
+        #  do interpolation of potential according to x values of initial state
+        if(len(self.potential['x']) != len(self.state['x'])):
+            raise ValueError(f"Potential and state have different length ({len(self.potential['x'])} and {len(self.state['x'])})")
+        check = False
+        for x in self.state['x']:
+            if(x not in self.potential['x']):
+                check = True
+                print(x)
+                break
+        if(check):
+            raise ValueError("Potential and state have non-matching x range")
+        
+    def get_norm(self, state):
+        """
+            Gets the norm of the initial state and saves it in a class variable    
+        """
+        sum = 0
+        for p in state['Psi']:
+            sum += np.sqrt((p.real**2+p.imag**2)) *(state['x'][1]-state['x'][0])
+        return sum
+
+    def plot_potential(self):
+        """
+            Plots the (time-independent) potential of the system
+        """
+        plt.plot(self.potential['x'],self.potential['V'])
+        plt.ylabel("V(x)")
+        plt.xlabel("x")
+        plt.show() 
+
+    def plot_x_prob(self, state, label=None):
+        """
+           Plots the probability density of the system 
+           (to show the plot, you need to use plt.show())
+        """
+        plt.plot(state['x'],[np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']], 
+                 label=label)
+        plt.ylabel("Prob(x)")
+        plt.xlabel("x")
+
+    def plot_final_state(self, T, h, method='Visscher'):
+        """
+            Plots the final state after it is evolving
+            for a time T in steps of h.
+
+        Args:
+            T (float): total time the system is evolving
+            h (float): stepsize for the propagation 
+            method (str, optional): integration method to be used.
+                                    Defaults to 'Visscher'.
+                                    options are ['Visscher,"RK4]
+        """
+        state = self.get_final_state(T,h,method)
+        plt.plot(state['x'],[np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']])
+        plt.ylabel("Psi(T)")
+        plt.xlabel("x")
+        plt.show() 
