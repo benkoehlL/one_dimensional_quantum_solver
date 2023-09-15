@@ -7,9 +7,16 @@ the Visscher [1] or a RK4 integration method.
 
 [1] P.B. Visscher: "A fast explicit algorithm for the time dependent 
     Schrödinger equation", Computers in  Physics 5 (6), 596-598 (1991)
+
 ## creating the environment/installing all necessary packages
-In order to be able to use the library, run
+To be able to use the code, you can create a conda environment
+from the .yml file from the project via the terminal command
 
-`$ conda env create -f one-d_quantum_slver.yml`
+$ conda env create -f environment.yml
 
-in a terminal.
+or in a venv with
+
+$ pip install -r requirements.txt
+
+As my code only uses numpy and matplotlib, I do not think 
+that much setup time will be necessary.
