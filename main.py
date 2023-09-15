@@ -21,12 +21,11 @@ if __name__ == "__main__":
 
     ## solve time-dependent Schrödinger equation
     # stability condition for Schrödinger wave equations dt < (dx)^2/2 
-    h = (x[1]-x[0])**2/2 
-    s = System(state, potential)
-
+    h = (x[1]-x[0])**2/2
     for method in ['RK4', 'Visscher']:
+        s = System(state, potential)
         final_state_file = str(os.getcwd())+"/states/final_state_"+str(method)+".dat"
-        #s.export_final_state(T=10, h=h/2, file_name=final_state_file, method=method)
+        s.export_final_state(T=10, h=h/2, file_name=final_state_file, method=method)
         f = open(final_state_file, "r")
         data = f.read()
         x = [float(i.split(',')[0]) for i in data.split('\n') if len(i.split(',')) == 2]
