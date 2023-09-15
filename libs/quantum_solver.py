@@ -109,6 +109,7 @@ class System():
         for t in range(int(T/h)):
             print(" Progress: " + str("{:.2f}".format(100*t/(int(T/h))))+'%'+'\r',end='')
             state = self.rk4_step(state, h)
+        print("Finished RK4")
         return state
 
     def evolve_system_Visscher(self, T, h):
@@ -134,6 +135,7 @@ class System():
         for t in range(int(T/h)):
             print(" Progress: " + str("{:.2f}".format(100*t/(int(T/h))))+'%'+'\r',end='')
             state = self.Visscher_step(state, h)
+        print("Finished Visscher")
         return state
 
     def rk4_step(self, state, h):
