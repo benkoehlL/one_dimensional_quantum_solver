@@ -94,7 +94,7 @@ class System():
         H = [-0.5*L['l'][i]+self.potential['V'][i]*state['Psi'][i] for i in range(len(L['x']))]
         return H
 
-    def evolve_system_RK4(self, T : float, h : float):
+    def evolve_system_RK4(self, T : float, h : float, animate : bool = False):
         """
             Evolves the system using a fourth order Runge-Kutta integration algorithm
             by time T in steps of h.
@@ -102,6 +102,7 @@ class System():
         Args:
             T (float): total time the system is evolving
             h (float): stepsize for the propagation 
+            animate (bool, optional): variable for activating animation
 
         Returns:
             state (dict):   a dictionary with keys 'x' and 'Psi' for 
@@ -110,13 +111,24 @@ class System():
         """
 
         state = self.state
+        if(animate):
+            plt.ion()
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            line1, = ax.plot(state['x'], 
+                            [np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']],
+                            'b-')
         for t in range(int(T/h)):
             print(" Progress: " + str("{:.2f}".format(100*t/(int(T/h))))+'%'+'\r',end='')
             state = self.rk4_step(state, h)
+            if(animate and t%100==0):
+                line1.set_ydata([np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']])
+                fig.canvas.draw()
+                fig.canvas.flush_events()
         print("\nFinished RK4")
         return state
 
-    def evolve_system_Visscher(self, T : float, h : float):
+    def evolve_system_Visscher(self, T : float, h : float, animate : bool = False):
         """
             Evolves the system using a integration algorithm described in
 
@@ -128,6 +140,7 @@ class System():
         Args:
             T (float): total time the system is evolving
             h (float): stepsize for the propagation 
+            animate (bool, optional): variable for activating animation
 
         Returns:
             state (dict):   a dictionary with keys 'x' and 'Psi' for 
@@ -136,9 +149,20 @@ class System():
         """
 
         state = self.state
+        if(animate):
+            plt.ion()
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            line1, = ax.plot(state['x'], 
+                            [np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']], 
+                            'b-')
         for t in range(int(T/h)):
             print(" Progress: " + str("{:.2f}".format(100*t/(int(T/h))))+'%'+'\r',end='')
             state = self.Visscher_step(state, h)
+            if(animate and t%100==0):
+                line1.set_ydata([np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']])
+                fig.canvas.draw()
+                fig.canvas.flush_events()
         print("\nFinished Visscher")
         return state
 
@@ -196,7 +220,11 @@ class System():
         R['Psi'] = [R['Psi'][i] + h*s for i,s in enumerate(self.schroedinger_H(I))]
         return ({'x' : state['x'], 'Psi' : [R['Psi'][i] + 1j*I['Psi'][i] for i in range(len(state['Psi']))]})
     
-    def get_final_state(self, T : float, h : float, method : str ="Visscher"):
+    def get_final_state(self, T : float, 
+                        h : float, 
+                        method : str ="Visscher", 
+                        animate : bool = False):
+        
         """
             A function to propagate the system by a total time T 
             in steps of h.
@@ -207,6 +235,7 @@ class System():
             method (str, optional): integration method to use.
                                     Defaults to "Visscher".
                                     options are ['Visscher','RK4']
+            animate (bool, optional): variable for activating animation
 
         Raises:
             ValueError: raises an value error when the integration method
@@ -219,14 +248,18 @@ class System():
                             after evolving a total time of T
         """
         if(method == 'Visscher'):
-            state = self.evolve_system_Visscher(T, h)
+            state = self.evolve_system_Visscher(T, h, animate)
         elif(method == 'RK4'):
-            state = self.evolve_system_RK4(T, h)
+            state = self.evolve_system_RK4(T, h, animate)
         else:
             raise ValueError(f"Option '{method}' is not yet implemented")
         return state
 
-    def export_final_state(self, T : float, h : float, file_name : str, method="Visscher"):
+    def export_final_state(self, T : float, 
+                           h : float, 
+                           file_name : str, 
+                           method="Visscher", 
+                           animate : bool = False):
         """
             Exports a file into a given path with the state after
             evolving for a total time of T with a stepsize of h
@@ -241,8 +274,9 @@ class System():
             method (str, optional): integration method to use.
                                     Defaults to "Visscher".
                                     options are ['Visscher','RK4']
+            animate (bool, optional): variable for activating animation
         """
-        state = self.get_final_state(T, h, method)
+        state = self.get_final_state(T, h, method, animate)
 
         # open the file in the write mode
         f = open(file_name, 'w')
