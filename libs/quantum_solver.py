@@ -240,9 +240,6 @@ class System():
                                     options are ['Visscher','RK4']
         """
         state = self.get_final_state(T, h, method)
-        # normalise the final state (necessary due to numerical errors)
-        #norm = self.get_norm(state)
-        #state['Psi'] = [i/norm for i in state['Psi']]
 
         # open the file in the write mode
         f = open(file_name, 'w')
