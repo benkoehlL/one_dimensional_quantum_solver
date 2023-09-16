@@ -375,7 +375,7 @@ if __name__=="__main__":
     while True:
         t += 1
         state = s.Visscher_step(state, h/2)
-        if(t%100==0):
+        if(t%10==0):
             line1.set_ydata([np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']])
             fig.canvas.draw()
             fig.canvas.flush_events()
