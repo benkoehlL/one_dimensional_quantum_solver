@@ -313,8 +313,8 @@ class System():
         """
         sum = 0
         for p in state['Psi']:
-            sum += np.sqrt((p.real**2+p.imag**2)) 
-        return sum/(state['x'][-1]-state['x'][0])
+            sum += np.sqrt((p.real**2+p.imag**2))*(self.state['x'][1]-self.state['x'][0])
+        return sum
 
     def plot_potential(self):
         """
@@ -360,7 +360,7 @@ if __name__=="__main__":
     init_state_path = str(os.getcwd())+"/data/input_state.dat"
     s = System(init_state_file_path=init_state_path, 
                    potential_file_path=potential_path)
-    s.state['Psi'] = [abs(np.sin((10*i)/(2*np.pi))) for i in s.state['x']]
+    s.state['Psi'] = [abs(np.sin((i)/(2*np.pi))) for i in s.state['x']]
     norm = s.get_norm(s.state)
     s.state['Psi'] = [i/norm for i in s.state['Psi']]
     h = (s.state['x'][1]-s.state['x'][0])**2
