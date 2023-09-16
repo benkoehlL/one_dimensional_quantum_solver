@@ -10,16 +10,12 @@ class System():
        equation and to plot and export the resulting final state.
     """
     
-    def __init__(self, init_state, potential, boundary = "periodic"):
+    def __init__(self, init_state_file_path, potential_file_path, boundary = "periodic"):
         """Initialisation of the class
 
         Args:
-            init_state (dict): a dictionary with keys 'x' and 'Psi' for 
-                               storing arrays of the wave function Psi's 
-                               complex values at different positions x  
-            potential (dict): a dictionary with keys 'x' and 'V' for 
-                               storing arrays of the potential V's values
-                               at different positions x
+            init_state (str): path to the initial state file 
+            potential (str): path to the potential file
             boundary (str, optional): the boundary conditions to use for solving
                                       the equation of motion. 
                                       Defaults to "periodic".
@@ -28,9 +24,14 @@ class System():
         Raises:
             ValueError: raises value error when giving unknown boundary conditions
         """
-
-        self.state = init_state
-        self.potential = potential
+        data = open(potential_file_path, "r").read()
+        x = [float(i.split(',')[0]) for i in data.split('\n') if len(i.split(',')) == 2]
+        V = [float(i.split(',')[1]) for i in data.split('\n') if len(i.split(',')) == 2]
+        self.potential = {'x': x, 'V': V}
+        data = open(init_state_file_path, "r").read()
+        x = [float(i.split(',')[0]) for i in data.split('\n') if len(i.split(',')) == 2]
+        Psi = [complex(i.split(',')[1]) for i in data.split('\n') if len(i.split(',')) == 2]
+        self.state = {'x': x, 'Psi': Psi}
         if(boundary == "periodic"):
             self.boundary = boundary
         else:
