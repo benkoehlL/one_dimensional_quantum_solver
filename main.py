@@ -14,7 +14,11 @@ if __name__ == "__main__":
         # stability condition for Schrödinger wave equations dt < (dx)^2/D 
         h = (s.state['x'][1]-s.state['x'][0])**2
         final_state_file = str(os.getcwd())+"/data/final_state_"+str(method)+".dat"
-        s.export_final_state(T=10, h=h/2, file_name=final_state_file, method=method)
+        s.export_final_state(T=10, 
+                             h=h/2, 
+                             file_name=final_state_file, 
+                             method=method,
+                             animate=True)
         
         # get final state for plotting
         s = System(init_state_file_path=final_state_file, 
