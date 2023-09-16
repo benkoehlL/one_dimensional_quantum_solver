@@ -13,7 +13,7 @@ if __name__ == "__main__":
                    potential_file_path=potential_path)
         # stability condition for Schrödinger wave equations dt < (dx)^2/2 
         h = (s.state['x'][1]-s.state['x'][0])**2
-        final_state_file = str(os.getcwd())+"/states/final_state_"+str(method)+".dat"
+        final_state_file = str(os.getcwd())+"/data/final_state_"+str(method)+".dat"
         s.export_final_state(T=10, h=h/2, file_name=final_state_file, method=method)
         
         # get final state for plotting
