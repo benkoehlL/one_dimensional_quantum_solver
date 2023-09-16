@@ -10,7 +10,10 @@ class System():
        equation and to plot and export the resulting final state.
     """
     
-    def __init__(self, init_state_file_path, potential_file_path, boundary = "periodic"):
+    def __init__(self, 
+                 init_state_file_path : str,
+                  potential_file_path : str, 
+                  boundary : str = "periodic"):
         """Initialisation of the class
 
         Args:
@@ -42,7 +45,7 @@ class System():
         self.norm = self.get_norm(self.state)
         self.state['Psi'] = [i/self.norm for i in self.state['Psi']]
 
-    def get_Laplace(self, state):
+    def get_Laplace(self, state : dict):
         """
            Returns the Laplacian of a given quantum state
 
@@ -73,7 +76,7 @@ class System():
         
         return laplace
 
-    def schroedinger_H(self, state):
+    def schroedinger_H(self, state : dict):
         """
             Returns the Schrödinger Hamiltonian for a given quantum state 
             and the system's potential
@@ -91,7 +94,7 @@ class System():
         H = [-0.5*L['l'][i]+self.potential['V'][i]*state['Psi'][i] for i in range(len(L['x']))]
         return H
 
-    def evolve_system_RK4(self, T, h):
+    def evolve_system_RK4(self, T : float, h : float):
         """
             Evolves the system using a fourth order Runge-Kutta integration algorithm
             by time T in steps of h.
@@ -113,7 +116,7 @@ class System():
         print("\nFinished RK4")
         return state
 
-    def evolve_system_Visscher(self, T, h):
+    def evolve_system_Visscher(self, T : float, h : float):
         """
             Evolves the system using a integration algorithm described in
 
@@ -139,7 +142,7 @@ class System():
         print("\nFinished Visscher")
         return state
 
-    def rk4_step(self, state, h):
+    def rk4_step(self, state : dict, h : float):
         """
            A single step of size h using a fourth-order Runge-Kutta method
 
@@ -170,7 +173,7 @@ class System():
                  'Psi': [y + h*(k1[i] + 2*k2[i] + 2*k3[i] + k4[i])/6 for i,y in enumerate(state['Psi'])]}
         return state
         
-    def Visscher_step(self, state, h):
+    def Visscher_step(self, state : dict, h : float):
         """
            A single step of size h using the Visscher method
 
@@ -193,7 +196,7 @@ class System():
         R['Psi'] = [R['Psi'][i] + h*s for i,s in enumerate(self.schroedinger_H(I))]
         return ({'x' : state['x'], 'Psi' : [R['Psi'][i] + 1j*I['Psi'][i] for i in range(len(state['Psi']))]})
     
-    def get_final_state(self, T, h, method="Visscher"):
+    def get_final_state(self, T : float, h : float, method : str ="Visscher"):
         """
             A function to propagate the system by a total time T 
             in steps of h.
@@ -223,7 +226,7 @@ class System():
             raise ValueError(f"Option '{method}' is not yet implemented")
         return state
 
-    def export_final_state(self, T, h, file_name, method="Visscher"):
+    def export_final_state(self, T : float, h : float, file_name : str, method="Visscher"):
         """
             Exports a file into a given path with the state after
             evolving for a total time of T with a stepsize of h
@@ -270,7 +273,7 @@ class System():
         if(check):
             raise ValueError("Potential and state have non-matching x range")
         
-    def get_norm(self, state):
+    def get_norm(self, state : dict):
         """
             Gets the norm of the initial state and saves it in a class variable    
         """
@@ -288,7 +291,7 @@ class System():
         plt.xlabel("x")
         plt.show() 
 
-    def plot_x_prob(self, state, label=None):
+    def plot_x_prob(self, state : dict, label : str =None):
         """
            Plots the probability density of the system 
            (to show the plot, you need to use plt.show())
@@ -298,7 +301,7 @@ class System():
         plt.ylabel("Prob(x)")
         plt.xlabel("x")
 
-    def plot_final_state(self, T, h, method='Visscher'):
+    def plot_final_state(self, T : float, h : float, method : str ='Visscher' ):
         """
             Plots the final state after it is evolving
             for a time T in steps of h.
