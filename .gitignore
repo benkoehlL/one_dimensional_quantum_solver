@@ -27,7 +27,7 @@
 */__pycache__
 /libs/__pycache__
 # .dat files
-*.dat
+.dat
 # log files
 *.log
 /keys
