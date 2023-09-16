@@ -313,8 +313,8 @@ class System():
         """
         sum = 0
         for p in state['Psi']:
-            sum += np.sqrt((p.real**2+p.imag**2)) *(state['x'][1]-state['x'][0])
-        return sum
+            sum += np.sqrt((p.real**2+p.imag**2)) 
+        return sum/(state['x'][-1]-state['x'][0])
 
     def plot_potential(self):
         """
@@ -352,3 +352,30 @@ class System():
         plt.ylabel("Psi(T)")
         plt.xlabel("x")
         plt.show() 
+
+if __name__=="__main__":
+    import os
+    
+    potential_path = str(os.getcwd())+"/data/potential.dat"
+    init_state_path = str(os.getcwd())+"/data/input_state.dat"
+    s = System(init_state_file_path=init_state_path, 
+                   potential_file_path=potential_path)
+    s.state['Psi'] = [abs(np.sin((10*i)/(2*np.pi))) for i in s.state['x']]
+    norm = s.get_norm(s.state)
+    s.state['Psi'] = [i/norm for i in s.state['Psi']]
+    h = (s.state['x'][1]-s.state['x'][0])**2
+    plt.ion()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    line1, = ax.plot(s.state['x'], 
+                    [np.sqrt(i.real**2 + i.imag**2) for i in s.state['Psi']], 
+                    'b-')
+    t = 0
+    state = s.state
+    while True:
+        t += 1
+        state = s.Visscher_step(state, h/2)
+        if(t%100==0):
+            line1.set_ydata([np.sqrt(i.real**2 + i.imag**2) for i in state['Psi']])
+            fig.canvas.draw()
+            fig.canvas.flush_events()
